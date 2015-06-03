@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+if ! which fpm >/dev/null; then
+  echo "Error: fpm is required, read install instructions at https://github.com/jordansissel/fpm"
+  exit 1
+fi
+
+if [ ! -f ec2-api-tools.zip ]; then
+  echo "unable to find ec2-api-tools.zip, downloading from amazon"
+  curl -O http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip
+fi
+
+unzip -o ec2-api-tools.zip
+
+source_dir=$(ls -d ec2-api-tools-*/)
+version=$(echo $source_dir| cut -d "-" -f 4 |tr -d "/")
+
+
+fpm -f -n ec2-api-tools -s dir -t deb \
+    --prefix /opt/ec2-api-tools \
+    --version $version \
+    --license "Amazon Software License" \
+    --description "ec2 command line tools" \
+    --url http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/Welcome.html \
+    -C $source_dir \
+    .
